@@ -1,0 +1,11 @@
+.successMessage {
+    position: relative;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    text-align: center;
+    width: fit-content;
+    justify-self: center;
+    padding: 3rem;
+    color: green;
+    z-index: 3;
+}
