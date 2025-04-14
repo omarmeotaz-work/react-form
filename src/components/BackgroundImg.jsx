@@ -1,6 +1,5 @@
-import styles from "./Backgroundimg.module.css";
 function BackgroundImg() {
-  return <div className={styles.bgImage}></div>;
+  return <div></div>;
 }
 
 export default BackgroundImg;
