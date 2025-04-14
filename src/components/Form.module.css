@@ -7,7 +7,8 @@
     top: 0;
     font-family: "Poppins", sans-serif;
     transition: all 0.6s ease-in-out;
-    height: -webkit-fill-available;
+    height: fit-content;
+    min-height: 100%;
 }
 
 .regformDisabled {

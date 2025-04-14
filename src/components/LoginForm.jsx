@@ -16,7 +16,7 @@ function LoginForm({ signin, setSignin, setMessage, setSuccess }) {
       const errors = {};
       if (
         !values.email ||
-        !/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(values.email)
+        !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(values.email)
       )
         errors.email = "Invalid email format.";
       if (values.password.length <= 6)
