@@ -33,10 +33,12 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
       ) {
         errors.email = "Invalid email format.";
       }
+
       if (!values.phone || !values.phone.startsWith(20))
         errors.phone = "invalid phone number";
-      if (values.phone.length !== 12)
-        errors.phone = "phone number must be 12 digits long";
+      else if (values.phone.length !== 12)
+        errors.phone = "phone number must be 12 digits long and start with 20";
+
       if (!values.BirthDay) errors.BirthDay = "enter your birthday";
       if (!values.password) errors.password = "create a password";
       if (values.password.length <= 5)
@@ -75,7 +77,7 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
         <div className={styles.row}>
           <label htmlFor="fullName">Full Name</label>
           <input
-            type="fullName"
+            type="text"
             id="fullName"
             placeholder="Enter your full name"
             {...formik.getFieldProps("name")}
@@ -89,7 +91,7 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
           <input
             type="tel"
             id="phone"
-            placeholder="Enter your phone number"
+            placeholder="Enter your phone number e.g. +201234567890"
             {...formik.getFieldProps("phone")}
           />
           {formik.touched.phone && formik.errors.phone ? (
