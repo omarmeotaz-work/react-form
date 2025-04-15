@@ -34,10 +34,10 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
         errors.email = "Invalid email format.";
       }
 
-      if (!values.phone || !values.phone.startsWith(20))
-        errors.phone = "invalid phone number";
-      else if (values.phone.length !== 12)
-        errors.phone = "phone number must be 12 digits long and start with 20";
+      if (!values.phone) errors.phone = "invalid phone number";
+      else if (values.phone.length !== 12 || !values.phone.startsWith(20))
+        errors.phone =
+          "phone number must be 12 digits long and start with (20)";
 
       if (!values.BirthDay) errors.BirthDay = "enter your birthday";
       if (!values.password) errors.password = "create a password";
