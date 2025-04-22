@@ -24,6 +24,8 @@
     transform: translateX(-100%);
     opacity: 0;
     z-index: -3;
+    height: min-content;
+    max-height: 100vh;
 }
 
 
@@ -37,8 +39,8 @@
     top: 0;
     font-family: "Poppins", sans-serif;
     transition: all 0.6s ease-in-out;
-    height: 100vh;
-
+    height: -webkit-fill-available;
+    min-height: 100%;
 }
 
 .loginFormDisabled {
@@ -76,7 +78,7 @@
         padding: 3rem;
         margin: 0;
         border-radius: 10px;
-        height: auto !important;
+        height: -webkit-fill-available;
     }
 
     button {
