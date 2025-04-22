@@ -1,160 +1,245 @@
 import styles from "./Form.module.css";
-import { useFormik } from "formik";
 import Logo from "../images/Logo.png";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useReducer } from "react";
+
+const initialState = {
+  values: {
+    name: "",
+    email: "",
+    phone: "",
+    BirthDay: null,
+    password: "",
+    confirmpass: "",
+  },
+  errors: {},
+  touched: {},
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "setField":
+      return {
+        ...state,
+        values: {
+          ...state.values,
+          [action.field]: action.value,
+        },
+      };
+    case "setTouched":
+      return {
+        ...state,
+        touched: {
+          ...state.touched,
+          [action.field]: true,
+        },
+      };
+    case "setError":
+      return {
+        ...state,
+        errors: action.errors,
+      };
+    case "touchAll":
+      return {
+        ...state,
+        touched: {
+          name: true,
+          email: true,
+          phone: true,
+          BirthDay: true,
+          password: true,
+          confirmpass: true,
+        },
+      };
+
+    case "reset":
+      return initialState;
+    default:
+      return state;
+  }
+}
 
 function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      phone: "",
-      BirthDay: null,
-      password: "",
-      confirmpass: "",
-    },
-    onSubmit: () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    dispatch({ type: "setField", field: name, value });
+  };
+
+  const handleBlur = (e) => {
+    dispatch({ type: "setTouched", field: e.target.name });
+  };
+
+  const validate = (values) => {
+    const errors = {};
+
+    if (!values.name) {
+      errors.name = "Enter your full name.";
+    } else if (values.name.length <= 5) {
+      errors.name = "Name must be at least 6 characters long.";
+    }
+
+    if (!values.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email)) {
+      errors.email = "Invalid email format.";
+    }
+
+    if (!values.phone) {
+      errors.phone = "Phone number is required.";
+    } else if (!/^20\d{10}$/.test(values.phone)) {
+      errors.phone = "Phone number must be 12 digits and start with 20.";
+    }
+
+    if (!values.BirthDay) {
+      errors.BirthDay = "Enter your birthday.";
+    } else {
+      const age = moment().diff(moment(values.BirthDay), "years");
+      if (age < 13) {
+        errors.BirthDay = "You must be at least 13 years old.";
+      }
+    }
+
+    if (!values.password) {
+      errors.password = "Create a password.";
+    } else if (values.password.length <= 5) {
+      errors.password = "Password must be at least 6 characters.";
+    }
+
+    if (!values.confirmpass) {
+      errors.confirmpass = "Confirm your password.";
+    } else if (values.confirmpass !== values.password) {
+      errors.confirmpass = "Passwords do not match.";
+    }
+
+    return errors;
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch({ type: "touchAll" }); // Mark everything as touched
+    const errors = validate(state.values);
+    dispatch({ type: "setError", errors });
+
+    if (Object.keys(errors).length === 0) {
       setSuccess(true);
       setSignin(true);
-    },
+      setMessage("Account registered!");
+      dispatch({ type: "reset" });
+    }
+  };
 
-    validate: (values) => {
-      const errors = {};
-      if (!values.name) {
-        errors.name = "Enter your full name.";
-      } else if (values.name.length <= 5) {
-        errors.name = "Name must be atleast 6 characters long.";
-      }
-      if (
-        !values.email ||
-        !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/i.test(values.email)
-      ) {
-        errors.email = "Invalid email format.";
-      }
-
-      if (!values.phone) errors.phone = "invalid phone number";
-      else if (values.phone.length !== 12 || !values.phone.startsWith(20))
-        errors.phone =
-          "phone number must be 12 digits long and start with (20)";
-
-      if (!values.BirthDay) errors.BirthDay = "enter your birthday";
-      if (!values.password) errors.password = "create a password";
-      if (values.password.length <= 5)
-        errors.password = "password must be at least 6 char long";
-      if (!values.confirmpass) errors.confirmpass = "confirm your password";
-      if (values.confirmpass !== values.password)
-        errors.confirmpass = "value not the same as password";
-      if (values.BirthDay) {
-        const age = moment().diff(moment(values.BirthDay), "years");
-        if (age < 13) {
-          errors.BirthDay = "You must be at least 13 years old.";
-        }
-      }
-      return errors;
-    },
-  });
+  const { values, errors, touched } = state;
 
   return (
     <div className={signin ? styles.regformDisabled : styles.regForm}>
       <img src={Logo} alt="logo" />
-      <h1>create an Account</h1>
-      <form onSubmit={formik.handleSubmit}>
+      <h1>Create an Account</h1>
+      <form onSubmit={handleSubmit}>
         <div className={styles.row}>
           <label htmlFor="email">Email address</label>
           <input
             type="email"
             id="email"
+            name="email"
             placeholder="Enter your Email"
-            {...formik.getFieldProps("email")}
+            value={values.email}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
-          {formik.touched.email && formik.errors.email ? (
-            <span className={styles.error}>{formik.errors.email}</span>
-          ) : null}
+          {touched.email && errors.email && (
+            <span className={styles.error}>{errors.email}</span>
+          )}
         </div>
 
         <div className={styles.row}>
-          <label htmlFor="fullName">Full Name</label>
+          <label htmlFor="name">Full Name</label>
           <input
             type="text"
-            id="fullName"
+            id="name"
+            name="name"
             placeholder="Enter your full name"
-            {...formik.getFieldProps("name")}
+            value={values.name}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
-          {formik.touched.name && formik.errors.name ? (
-            <span className={styles.error}>{formik.errors.name}</span>
-          ) : null}
+          {touched.name && errors.name && (
+            <span className={styles.error}>{errors.name}</span>
+          )}
         </div>
+
         <div className={styles.row}>
           <label htmlFor="phone">Phone</label>
           <input
             type="tel"
             id="phone"
-            placeholder="Enter your phone number e.g. +201234567890"
-            {...formik.getFieldProps("phone")}
+            name="phone"
+            placeholder="Enter your phone number"
+            value={values.phone}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
-          {formik.touched.phone && formik.errors.phone ? (
-            <span className={styles.error}>{formik.errors.phone}</span>
-          ) : null}
+          {touched.phone && errors.phone && (
+            <span className={styles.error}>{errors.phone}</span>
+          )}
         </div>
+
         <div className={styles.row}>
           <label htmlFor="birthday">Birthday (Age limit is 13)</label>
           <DatePicker
-            id="date"
-            selected={formik.values.BirthDay}
-            onChange={(date) => formik.setFieldValue("BirthDay", date)}
+            id="birthday"
+            selected={values.BirthDay}
+            onChange={(date) =>
+              dispatch({ type: "setField", field: "BirthDay", value: date })
+            }
             dateFormat="dd/MM/yyyy"
             maxDate={moment().subtract(13, "years").toDate()}
             placeholderText="Enter your birthday"
           />
-          {formik.touched.BirthDay && formik.errors.BirthDay ? (
-            <span className={styles.error}>{formik.errors.BirthDay}</span>
-          ) : null}
+          {touched.BirthDay && errors.BirthDay && (
+            <span className={styles.error}>{errors.BirthDay}</span>
+          )}
         </div>
 
         <div className={styles.row}>
           <label htmlFor="password">Password</label>
           <input
             type="password"
-            placeholder="Create your password"
             id="password"
-            {...formik.getFieldProps("password")}
+            name="password"
+            placeholder="Create your password"
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
-          {formik.touched.password && formik.errors.password ? (
-            <span className={styles.error}>{formik.errors.password}</span>
-          ) : null}
+          {touched.password && errors.password && (
+            <span className={styles.error}>{errors.password}</span>
+          )}
         </div>
+
         <div className={styles.row}>
-          <label htmlFor="confirmpassword">Confirm Password</label>
+          <label htmlFor="confirmpass">Confirm Password</label>
           <input
             type="password"
+            id="confirmpass"
+            name="confirmpass"
             placeholder="Please confirm your password"
-            id="confirmpassword"
-            {...formik.getFieldProps("confirmpass")}
+            value={values.confirmpass}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
-          {formik.touched.confirmpass && formik.errors.confirmpass ? (
-            <span className={styles.error}>{formik.errors.confirmpass}</span>
-          ) : null}
+          {touched.confirmpass && errors.confirmpass && (
+            <span className={styles.error}>{errors.confirmpass}</span>
+          )}
         </div>
+
         <div>
-          <button
-            type="submit"
-            onClick={() => {
-              setMessage("account registered!");
-            }}
-          >
-            Create an account
-          </button>
+          <button type="submit">Create an account</button>
         </div>
+
         <p>
-          already have an account?{" "}
-          <span
-            className={styles.login}
-            onClick={() => {
-              setSignin(true);
-            }}
-          >
+          Already have an account?{" "}
+          <span className={styles.login} onClick={() => setSignin(true)}>
             Login
           </span>
         </p>
