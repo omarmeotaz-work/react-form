@@ -128,6 +128,11 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
       dispatch({ type: "reset" });
     }
   };
+  const handleSignin = (e) => {
+    e.preventDefault();
+    setSignin(true);
+    dispatch({ type: "reset" });
+  };
 
   const { values, errors, touched } = state;
 
@@ -239,7 +244,7 @@ function RegisterForm({ signin, setSignin, setSuccess, setMessage }) {
 
         <p>
           Already have an account?{" "}
-          <span className={styles.login} onClick={() => setSignin(true)}>
+          <span className={styles.login} onClick={handleSignin}>
             Login
           </span>
         </p>
